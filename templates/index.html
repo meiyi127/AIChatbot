@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<title>Sunway Pyramid Customer Service Chatbot</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='styles/style.css') }}">
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+</head>
+<body class="background">
+	<div class="chatbox">
+		<div class="header">
+			<div class="title">
+				<b>Sunway Pyramid Customer Service Chatbot</b>
+			</div>
+		</div>
+		<main class="conversation">
+			<div class="bubble left-side">
+				<div class="info">
+					<div class="info-name">Sunway Pyramid Customer Service Chatbot</div>
+					<div class="info-time" id="start"></div>
+				</div>
+				<div>Hello, this is Sunway Pyramid Customer Service Chatbot, what can I assist you today?</div>
+			</div>
+		</main>
+		<form class="message-form">
+			<input type="text" class="message-input" id="textInput" placeholder="Type your message here...">
+			<button type="submit">Send</button>
+		</form>
+	</div>
+	<script>
+		var time = getTime(new Date());
+		document.getElementById('start').innerHTML = time;
+
+		const form = get(".message-form");
+		const input = get(".message-input");
+		const chat = get(".conversation");
+
+		const BOT_NAME = "Sunway Pyramid Customer Service Chatbot";
+		const PERSON_NAME = "You";
+
+		// when user click send button
+		form.addEventListener("submit", event => {
+			event.preventDefault();
+
+			const text = input.value;
+			if (!text) return;
+
+			sendMessage(PERSON_NAME, "right", text);
+			input.value = "";
+			botRespond(text);
+		})
+		
+		// send input message
+		function sendMessage(name, side, text) {
+			const message = `
+			<div class="bubble ${side}-side">
+				<div class="info">
+					<div class="info-name">${name}</div>
+					<div class="info-time">${getTime(new Date())}</div>
+				</div>
+				<div>${text}</div>
+			</div>
+			`;
+
+			chat.insertAdjacentHTML("beforeend", message);
+			chat.scrollTop += 500;
+		}
+
+		// bot respond
+		function botRespond(text) {
+			$.get("/get", { botMsg : text }).done(function (data) {
+				console.log(text);
+				console.log(data);
+				const botText = data;
+				sendMessage(BOT_NAME, "left", botText);
+			})
+		}
+
+		function get(select, root = document) {
+			return root.querySelector(select);
+		}
+
+		// get current time
+		function getTime(date) {
+			const hour = ('0' + date.getHours()).slice(-2);
+			const minute = ('0' + date.getMinutes()).slice(-2);
+
+			return hour + ":" + minute;
+		}
+	</script>
+</body>
+</html>
